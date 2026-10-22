@@ -28,95 +28,89 @@ Build a style profile, explore outfit matches with clear reasons, and preview lo
 <details>
 <summary><strong>Full table of contents</strong></summary>
 
-1. [The DaFitMatch brief](#the-dafitmatch-brief)
-2. [The idea](#the-idea)
-3. [Inside the experience](#inside-the-experience)
-4. [Tools in the atelier](#tools-in-the-atelier)
-5. [Materials and technology](#materials-and-technology)
-6. [How the pieces connect](#how-the-pieces-connect)
-7. [Repository map](#repository-map)
-8. [Set up your workspace](#set-up-your-workspace)
-9. [Local settings](#local-settings)
-10. [Data and connected services](#data-and-connected-services)
-11. [Privacy notes](#privacy-notes)
-12. [Developer notes](#developer-notes)
-13. [Contributing](#contributing)
-14. [Project details](#project-details)
-15. [Outfit match card concept](#outfit-match-card-concept)
+- [The DaFitMatch brief](#the-dafitmatch-brief)
+- [The idea](#the-idea)
+- [Inside the experience](#inside-the-experience)
+- [Tools in the atelier](#tools-in-the-atelier)
+- [Materials and technology](#materials-and-technology)
+- [How the pieces connect](#how-the-pieces-connect)
+- [Repository map](#repository-map)
+- [Set up your workspace](#set-up-your-workspace)
+- [Local settings](#local-settings)
+- [Data and connected services](#data-and-connected-services)
+- [Privacy notes](#privacy-notes)
+- [Developer notes](#developer-notes)
+- [Contributing](#contributing)
+- [Project details](#project-details)
+- [Outfit match card concept](#outfit-match-card-concept)
 
 </details>
 
 ## The DaFitMatch brief
 
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <br>
-      <strong>🎨 &nbsp; PERSONAL STYLE</strong>
-      <br><br>
-      Shape a personal profile through aesthetics, colours, priorities, and exclusions.
-      <br><br>
-    </td>
-    <td align="center" width="50%">
-      <br>
-      <strong>🧵 &nbsp; FIT &amp; COMFORT</strong>
-      <br><br>
-      Add practical preferences for silhouettes, movement, comfort, and wardrobe habits.
-      <br><br>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <br>
-      <strong>✨ &nbsp; EXPLAINABLE MATCHES</strong>
-      <br><br>
-      Explore ranked catalogue looks with match reasons, score details, and useful warnings.
-      <br><br>
-    </td>
-    <td align="center" width="50%">
-      <br>
-      <strong>🪞 &nbsp; LOOK PREVIEWS</strong>
-      <br><br>
-      Try the Three.js styling playground or explore the clearly labelled Fit Studio preview.
-      <br><br>
-    </td>
-  </tr>
-</table>
+- **🎨 Personal style** — Shape a profile through aesthetics, colours, priorities, and exclusions.
 
-| Project | Verified overview |
-|---|---|
-| **Purpose** | Explore personal style preferences and rank a bundled outfit catalogue. |
-| **For** | Individuals exploring outfits; couple styling context is also represented in the site. |
-| **Runtime** | Static HTML, CSS, and JavaScript in the browser. No backend or build pipeline is present. |
-| **Status** | The repository contains a static site and demo flows. Release/deployment status is unspecified. |
+- **🧵 Fit and comfort** — Add practical preferences for silhouettes, movement, comfort, and wardrobe habits.
+
+- **✨ Explainable matches** — Explore ranked catalogue looks with match reasons, score details, and useful warnings.
+
+- **🪞 Look previews** — Try the Three.js styling playground or explore the clearly labelled Fit Studio preview.
+
+- **Purpose:** Explore personal style preferences and rank a bundled outfit catalogue.
+- **For:** Individuals exploring outfits; couple styling context is also represented in the site.
+- **Runtime:** Static HTML, CSS, and JavaScript in the browser. No backend or build pipeline is present.
+- **Status:** The repository contains a static site and demo flows. Release/deployment status is unspecified.
+
+<br>
 
 ## The idea
 
-The implemented experience suggests a goal of making outfit discovery more personal and understandable: users can state what they like, what they avoid, and how they want clothes to fit, then see why catalogue looks were ranked. This is an interpretation of the implemented flows, not a separate published product statement.
+- **Personal discovery:** Users describe what they like, what they avoid, and how they want clothes to fit.
+- **Clear recommendations:** Catalogue looks include reasons that explain how profile preferences informed their ranking.
+- **Project interpretation:** This describes the implemented flows, not a separate published product statement.
+
+<br>
 
 ## Inside the experience
 
-DaFitMatch is a browser-based styling prototype. Visitors can explore the landing page, start an eight-step aesthetic profile, optionally add fit and comfort preferences, and browse catalogue looks ranked against those answers. Recommendations include match signals, per-criterion scores, warnings, and hard-exclusion explanations. Occasion and solo/couple context are also represented in the site state and catalogue experience.
+- **Discover:** Explore the landing page and complete an eight-step aesthetic profile.
+- **Refine:** Optionally add fit, comfort, occasion, and solo/couple preferences.
+- **Match:** Browse catalogue looks ranked against the saved profile, with score details, warnings, and exclusion explanations.
+- **Preview:** Explore the 3D playground or AI Fit Studio, with unavailable services clearly presented as demos.
+- **Save:** Profiles stay in browser `localStorage`, either as a guest profile or under a Google subject when sign-in is configured.
+- **Catalogue:** Outfit data is bundled as local JSON. The project has no server-side account system or database.
 
-Profiles are saved in browser `localStorage`, separated into a guest profile and a Google-subject profile when Google sign-in is configured. The catalogue itself is a local JSON file. The project has no server-side account system or database.
+<br>
 
 ### Pages & interactions
 
-| Page | Purpose and interactions |
-|---|---|
-| [`index.html`](index.html) | Landing page with solo/couple journey entry points, “How it works” and couple sections, catalogue drawer, and 3D playground. The playground supports scene controls, catalogue selection, and image/video try-on overlays where matching assets exist. Responsive layout and reduced-motion styles are present. |
-| [`aesthetic.html`](aesthetic.html) | Eight-step style discovery flow covering aesthetics, colours, fit, formality, styling priorities, exclusions, footwear, and refinements. Answers autosave; users can review, navigate, complete, or reset the profile. |
-| [`fit-profile.html`](fit-profile.html) | Optional practical fit profile: general and garment-specific fit, silhouettes, sizes, comfort, mobility, fabrics, layering, accessories, wardrobe strategy, notes, and optional photo preview. Couple mode keeps each person's fit profile separate. |
-| [`recommendations.html`](recommendations.html) | Ranks the catalogue using saved aesthetic and fit preferences. Users can filter by gender, catalogue category, budget, and (in couple mode) person; cards show reasons, warnings, and score breakdowns. An empty-result state suggests widening filters or updating preferences. |
-| [`ai-fit-studio.html`](ai-fit-studio.html) | Select a catalogue outfit, choose a JPEG/PNG/WebP photo up to the configured size limit, consent, and generate a preview. Uses a configured endpoint or Hugging Face IDM-VTON when available; otherwise displays a clearly labelled local composite. |
+- [`index.html`](index.html) — Landing page with solo/couple journey entry points, “How it works” and couple sections, catalogue drawer, and 3D playground. The playground supports scene controls, catalogue selection, and image/video try-on overlays where matching assets exist. Responsive layout and reduced-motion styles are present.
 
-Most pages use responsive Tailwind utility classes loaded from a CDN. `index.html` also includes custom responsive and reduced-motion rules. A local HTTP server is required for pages that fetch the catalogue; opening via `file://` is not supported for those flows. Network access is needed for CDN-hosted libraries, fonts, Google Identity Services, or remote try-on services.
+- [`aesthetic.html`](aesthetic.html) — Eight-step style discovery flow covering aesthetics, colours, fit, formality, styling priorities, exclusions, footwear, and refinements. Answers autosave; users can review, navigate, complete, or reset the profile.
+
+- [`fit-profile.html`](fit-profile.html) — Optional practical fit profile covering garment fit, silhouettes, sizes, comfort, mobility, fabrics, layering, accessories, wardrobe strategy, notes, and optional photo preview. Couple mode keeps each person's fit profile separate.
+
+- [`recommendations.html`](recommendations.html) — Ranks the catalogue using saved aesthetic and fit preferences. Users can filter by gender, category, budget, and (in couple mode) person. Cards show reasons, warnings, and score breakdowns; an empty-result state suggests widening filters or updating preferences.
+
+- [`ai-fit-studio.html`](ai-fit-studio.html) — Select a catalogue outfit, choose a JPEG/PNG/WebP photo up to the configured size limit, consent, and generate a preview. Uses a configured endpoint or Hugging Face IDM-VTON when available; otherwise displays a clearly labelled local composite.
+
+- Most pages use responsive Tailwind utility classes loaded from a CDN.
+- `index.html` includes custom responsive and reduced-motion rules.
+- Pages that fetch the catalogue require a local HTTP server; opening via `file://` is not supported for those flows.
+- Network access is needed for CDN-hosted libraries, fonts, Google Identity Services, or remote try-on services.
+
+<br>
 
 ### Your style journey
 
 ![DaFitMatch user journey on a lavender canvas: choose a solo or couple path, discover an aesthetic, refine fit preferences, review matches, and open the 3D playground or AI Fit Studio.](assets/brand/user-journey-flow.png)
 
-The aesthetic and fit forms allow users to continue through optional sections. An empty profile still produces general catalogue highlights rather than personalized matches. Couple mode is represented in state, partner fit controls, and recommendation filtering; the repository does not document a shared online session or invite flow.
+- The aesthetic and fit forms allow users to continue through optional sections.
+- An empty profile still produces general catalogue highlights rather than personalized matches.
+- Couple mode is represented in state, partner fit controls, and recommendation filtering.
+- The repository does not document a shared online session or invite flow.
+
+<br>
 
 ## Tools in the atelier
 
@@ -127,6 +121,8 @@ The aesthetic and fit forms allow users to continue through optional sections. A
 - **3D fitting-room playground:** Three.js and `GLTFLoader` attempt to load a base character and outfit models. The expected GLB paths are documented in [`assets/models/README.md`](assets/models/README.md); the required model files are not present in this repository, so 3D character/outfit rendering depends on adding those assets. The page includes other scene and try-on presentation controls.
 - **AI Fit Studio:** Supports a configured HTTP(S) multipart endpoint or Hugging Face IDM-VTON integration. If no provider is available or a call fails, the app labels a locally composed preview as a demo rather than presenting it as AI output.
 - **Guest and Google sign-in state:** Google Identity Services integration is optional. Without a configured client ID the app remains usable as a guest.
+
+<br>
 
 ## Materials and technology
 
@@ -141,25 +137,33 @@ The aesthetic and fit forms allow users to continue through optional sections. A
 
 ### Technology overview
 
-| Technology | Role in DaFitMatch |
-|---|---|
-| HTML, CSS, JavaScript | Multi-page browser app and classic script modules; no framework or bundler. |
-| Tailwind CSS CDN | Utility styling loaded by the pages. |
-| Three.js `0.160.0` + `GLTFLoader` | 3D scene and optional glTF character/outfit rendering. GLB files are not included in this checkout. |
-| `localStorage` | Guest and signed-in profile persistence in the browser. |
-| Google Identity Services | Optional client-side Google sign-in. |
-| Hugging Face Spaces / Gradio client | Optional remote IDM-VTON integration for AI Fit Studio. |
-| JSON | Bundled outfit catalogue in `src/data/catalogue.json`. |
+- **HTML, CSS, and JavaScript** — Multi-page browser app and classic script modules; no framework or bundler.
+- **Tailwind CSS CDN** — Utility styling loaded by the pages.
+- **Three.js `0.160.0` + `GLTFLoader`** — 3D scene and optional glTF character/outfit rendering. GLB files are not included in this checkout.
+- **`localStorage`** — Guest and signed-in profile persistence in the browser.
+- **Google Identity Services** — Optional client-side Google sign-in.
+- **Hugging Face Spaces / Gradio client** — Optional remote IDM-VTON integration for AI Fit Studio.
+- **JSON** — Bundled outfit catalogue in `src/data/catalogue.json`.
+
+<br>
 
 ## How the pieces connect
 
 ![DaFitMatch architecture on a mint canvas: static pages connect to shared core and feature controllers, with local profile storage, catalogue data, optional Three.js assets, and external identity or try-on services.](assets/brand/system-architecture-flow.png)
 
-Pages load classic scripts directly; order is declared in each HTML file. `src/core/store.js` provides the shared profile contract and per-user local persistence. The aesthetic and fit controllers write to that store. The recommendation UI fetches the JSON catalogue and passes it with profile data to the pure scoring engine. No application API server, database, server-side authentication, or backend storage is implemented.
+- Pages load classic scripts directly; each HTML file declares their order.
+- `src/core/store.js` provides the shared profile contract and per-user local persistence.
+- The aesthetic and fit controllers write profile data to that store.
+- The recommendation UI fetches the JSON catalogue and passes it with profile data to the pure scoring engine.
+- No application API server, database, server-side authentication, or backend storage is implemented.
+
+<br>
 
 ## Image notes
 
-The animated satin-ribbon hero above is a README illustration. The repository also contains editorial hero artwork and catalogue images; these are project assets, not screenshots of the live interface. README motion is limited to the embedded GIF—GitHub and VS Code do not run custom README CSS or JavaScript.
+- The animated satin-ribbon hero above is a README illustration.
+- The repository also contains editorial hero artwork and catalogue images; these are project assets, not screenshots of the live interface.
+- README motion is limited to the embedded GIF. GitHub and VS Code do not run custom README CSS or JavaScript.
 
 ## Repository map
 
@@ -196,46 +200,51 @@ The animated satin-ribbon hero above is a README illustration. The repository al
 
 ## Set up your workspace
 
-You need a modern browser and Python 3 (or another static HTTP server). The repository does not specify a minimum browser version or require Node.js.
+- Use a modern browser and Python 3 (or another static HTTP server).
+- The repository does not specify a minimum browser version or require Node.js.
 
-1. Clone the repository and change into its directory.
-2. Start a static server from the repository root:
+- Clone the repository and change into its directory.
+- Start a static server from the repository root:
 
    ```powershell
    python -m http.server 8000
    ```
 
-3. Open [http://localhost:8000/index.html](http://localhost:8000/index.html).
+- Open [http://localhost:8000/index.html](http://localhost:8000/index.html).
 
-The catalogue is fetched over HTTP, so do not open the HTML files directly with `file://`.
+- The catalogue is fetched over HTTP, so do not open the HTML files directly with `file://`.
 
 ## Local settings
 
-Configuration is optional for guest browsing and local recommendations. For local settings, copy the template:
+- Configuration is optional for guest browsing and local recommendations.
+- To create local settings, copy the template:
 
 ```powershell
 Copy-Item src/config.example.js src/config.js
 ```
 
-`src/config.js` is ignored by Git. The example file contains placeholder values, not usable credentials.
+- `src/config.js` is ignored by Git.
+- The example file contains placeholder values, not usable credentials.
 
-| Name | Purpose | Required? |
-|---|---|---|
-| `GOOGLE_CLIENT_ID` | Google Identity Services web client ID. Add the local/deployed origin to that OAuth client's authorised JavaScript origins. | Optional; needed for Google sign-in. |
-| `APP_NAME` | Application name in runtime configuration. | Optional; template defaults to `DaFitMatch`. |
-| `STORAGE_NAMESPACE` | Key used for stored profile maps in browser localStorage. | Optional; template provides a default. |
-| `DEMO_MODE` | Template flag for explicit demo behavior when external services are unavailable. | Optional. |
-| `TRY_ON_PROVIDER` | Selects the Hugging Face path when set to `huggingface` and no custom endpoint is selected. | Optional. |
-| `TRY_ON_HF_TOKEN` | Hugging Face access token used by the IDM-VTON Space. | Optional; may be needed for remote inference. Treat as a secret. |
-| `TRY_ON_HF_SPACE` | Hugging Face Space identifier; template uses `yisol/IDM-VTON`. | Optional. |
-| `TRY_ON_ENDPOINT` | Custom HTTP(S) endpoint accepting multipart fields `image`, `outfit_id`, and `prompt`, returning an image blob or JSON with an `image` URL. | Optional; takes precedence over Hugging Face. |
-| `TRY_ON_MAX_BYTES` | Maximum uploaded photo size in bytes. | Optional; default is 5 MiB. |
+- `GOOGLE_CLIENT_ID` — Optional Google Identity Services web client ID. Add the local/deployed origin to that OAuth client's authorised JavaScript origins; needed only for Google sign-in.
+- `APP_NAME` — Optional application name; the template defaults to `DaFitMatch`.
+- `STORAGE_NAMESPACE` — Optional key for stored profile maps in browser localStorage; the template provides a default.
+- `DEMO_MODE` — Optional template flag for explicit demo behavior when external services are unavailable.
+- `TRY_ON_PROVIDER` — Optional selector for the Hugging Face path when set to `huggingface` and no custom endpoint is selected.
+- `TRY_ON_HF_TOKEN` — Optional Hugging Face access token for the IDM-VTON Space. Treat it as a secret.
+- `TRY_ON_HF_SPACE` — Optional Hugging Face Space identifier; the template uses `yisol/IDM-VTON`.
+- `TRY_ON_ENDPOINT` — Optional custom HTTP(S) endpoint accepting multipart fields `image`, `outfit_id`, and `prompt`, and returning an image or JSON with an `image` URL. Takes precedence over Hugging Face.
+- `TRY_ON_MAX_BYTES` — Optional maximum upload size in bytes; defaults to 5 MiB.
 
 ## Data and connected services
 
-There is no database, migration system, seed command, or project-owned API server. `src/data/catalogue.json` is the bundled catalogue source; edit that file and ensure referenced assets exist.
+- **Catalogue source:** `src/data/catalogue.json` is bundled with the project. Update it and check that referenced assets exist.
+- **No backend database:** There is no database, migration system, seed command, or project-owned API server.
+- **Custom try-on service:** When configured, the browser sends `image`, `outfit_id`, and `prompt` in a multipart `POST`. The response can be an image or JSON containing an image URL.
+- **Hugging Face integration:** When `TRY_ON_PROVIDER` is set to `huggingface`, the controller calls the configured Space through `@gradio/client`.
+- **Network boundary:** These are outbound integrations. The application implements no other HTTP endpoints.
 
-The site fetches the catalogue at `src/data/catalogue.json`. If a custom try-on endpoint is configured, the browser sends a multipart `POST` containing `image`, `outfit_id`, and `prompt`; it accepts an image response or JSON containing an `image` URL. Otherwise, if `TRY_ON_PROVIDER` is `huggingface`, the controller calls the configured Hugging Face Space through `@gradio/client`. These are outbound integrations, not Dafitmatch API routes. No other HTTP endpoints are implemented by the application.
+<br>
 
 ## Privacy notes
 
@@ -247,23 +256,29 @@ The site fetches the catalogue at `src/data/catalogue.json`. If a custom try-on 
 
 ## Developer notes
 
-No active test runner, lint command, or quality-check script is defined in the project configuration. Archived scripts under `tools/archive/` are not presented as supported checks.
+- No active test runner, lint command, or quality-check script is defined in the project configuration.
+- Archived scripts under `tools/archive/` are not presented as supported checks.
 
-| Symptom | Likely cause and fix |
-|---|---|
-| Catalogue is unavailable or page reports a fetch error | Start the HTTP server at the repository root and reload; `file://` cannot serve the JSON fetch. |
-| Google sign-in says it is not configured | Create `src/config.js` from the example, set `GOOGLE_CLIENT_ID`, and authorise the exact serving origin in Google Cloud. Guest mode remains available. |
-| AI Fit Studio shows a local demo | No provider is configured, or remote inference failed. The demo composite is deliberately labelled and is not an AI try-on. Check endpoint/token settings and network access. |
-| 3D character or outfit does not appear | The GLB files are absent from this checkout. See [`assets/models/README.md`](assets/models/README.md) for expected paths and model requirements. |
-| External styling or fonts are missing | The pages load Tailwind and fonts from external CDNs; check network access. |
+### Troubleshooting
+
+- **Catalogue is unavailable or a page reports a fetch error:** Start the HTTP server at the repository root and reload; `file://` cannot serve the JSON fetch.
+- **Google sign-in says it is not configured:** Create `src/config.js` from the example, set `GOOGLE_CLIENT_ID`, and authorise the exact serving origin in Google Cloud. Guest mode remains available.
+- **AI Fit Studio shows a local demo:** No provider is configured, or remote inference failed. The demo composite is labelled and is not an AI try-on. Check endpoint/token settings and network access.
+- **3D character or outfit does not appear:** The GLB files are absent from this checkout. See [`assets/models/README.md`](assets/models/README.md) for expected paths and model requirements.
+- **External styling or fonts are missing:** The pages load Tailwind and fonts from external CDNs; check network access.
 
 ## Contributing
 
-No contribution guide or code-style configuration is specified. Keep the static, classic-script loading model in mind when changing pages: shared scripts and relative asset paths are loaded directly by the HTML. Update [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and this README when profile contracts, scoring behavior, configuration, or page flows change. Do not commit real credentials or user photos.
+- No contribution guide or code-style configuration is specified.
+- Keep the static, classic-script loading model in mind: pages load shared scripts and relative assets directly.
+- Update [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and this README when profile contracts, scoring behavior, configuration, or page flows change.
+- Do not commit real credentials or user photos.
+
+<br>
 
 ## Project details
 
-No license, maintainer contact, or acknowledgement details are specified in the repository.
+- No license, maintainer contact, or acknowledgement details are specified in the repository.
 
 ### Details not verified in the repository
 
@@ -273,6 +288,8 @@ No license, maintainer contact, or acknowledgement details are specified in the 
 - Whether a deployed Google OAuth client or Hugging Face token is available.
 - The GLB character and outfit models expected by the viewer are not included in this checkout.
 - Formal support policy, contribution workflow, and maintainer contact.
+
+<br>
 
 ---
 
