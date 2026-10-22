@@ -1,10 +1,11 @@
-# DaFitMatch
+# DaFitMatch 
 
 AI-assisted personal styling platform that helps users discover an aesthetic, profile their
 preferences, and get explainable outfit recommendations — with a 3D avatar preview and virtual
 try-on. Everything runs in the browser; there is no backend and no build step.
 
-## Features
+## Features :- 
+ <!-- this is sample  -->
 
 - **Aesthetic discovery wizard** (`aesthetic.html`) — an 8-step, no-login-required quiz that
   captures a structured style profile (aesthetics, colours, fit, formality, exclusions, priorities).
