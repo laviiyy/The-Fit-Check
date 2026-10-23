@@ -74,6 +74,8 @@
    * only local metadata + an explicit processing-consent flag. */
   function blankFit() {
     return {
+      full_name: null,              // optional display name
+      gender: null,                 // women | men | non-binary | prefer-not-to-say
       general_fit: null,            // slim | regular | relaxed | oversized | depends | no-pref
       garment_specific_fit: {},     // { tops, bottoms, outerwear, footwear } -> fit id
       preferred_silhouettes: [],    // structured | flowing | layered | streamlined | statement | no-pref

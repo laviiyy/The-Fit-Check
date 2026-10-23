@@ -167,15 +167,13 @@
     5: 'Refined & Formal'
   };
 
+  /* Three grouped steps: every question from the original eight-step flow is
+   * still asked, but related topics now share one screen to shorten the
+   * journey without weakening the profile. */
   var STEPS = [
-    { key: 'aesthetics', title: 'Preferred Fashion Aesthetics' },
-    { key: 'colours', title: 'Colour Preferences' },
-    { key: 'fit', title: 'Fit & Silhouette' },
-    { key: 'formality', title: 'Formality & Experimentation' },
-    { key: 'priorities', title: 'Styling Priorities' },
-    { key: 'exclusions', title: 'Exclusions & Boundaries' },
-    { key: 'refinement', title: 'Optional Refinement' },
-    { key: 'review', title: 'Review Your Profile' }
+    { key: 'style', title: 'Style & Colour' },
+    { key: 'fit', title: 'Fit & Formality' },
+    { key: 'priorities', title: 'Priorities & Boundaries' }
   ];
 
   /* =====================================================================
@@ -338,14 +336,24 @@
   }
 
   function renderStepContent(index) {
-    if (index === 0) renderStyles();
-    else if (index === 1) { renderColours(); renderAvoidColours(); renderPattern(); }
-    else if (index === 2) { renderFit(); renderSilhouette(); }
-    else if (index === 3) { renderFormality(); renderExperiment(); }
-    else if (index === 4) renderPriorities();
-    else if (index === 5) { renderExclusions(); renderExclusionDetails(); }
-    else if (index === 6) { renderRefinement(); renderFootwear(); }
-    else if (index === 7) renderReview();
+    if (index === 0) {
+      renderStyles();
+      renderColours();
+      renderAvoidColours();
+      renderPattern();
+    } else if (index === 1) {
+      renderFit();
+      renderSilhouette();
+      renderFormality();
+      renderExperiment();
+    } else if (index === 2) {
+      renderPriorities();
+      renderExclusions();
+      renderExclusionDetails();
+      renderRefinement();
+      renderFootwear();
+      renderReview();
+    }
   }
 
   /* =====================================================================
@@ -422,7 +430,7 @@
       toggle(flags, id);
     }
     Store.setAesthetic({ exclusion_flags: flags });
-    renderStepContent(5);
+    renderStepContent(currentStep);
     renderSummary();
     updateNavHint();
   }
@@ -704,13 +712,15 @@
     bindEvents();
 
     var savedStep = Store.get().aestheticStep;
-    currentStep = typeof savedStep === 'number' && savedStep >= 0 && savedStep < STEPS.length ? savedStep : 0;
+    currentStep = typeof savedStep === 'number'
+      ? Math.max(0, Math.min(STEPS.length - 1, savedStep))
+      : 0;
 
     try {
       var params = new URLSearchParams(window.location.search);
       if (params.has('step')) {
         var deep = parseInt(params.get('step'), 10);
-        if (!isNaN(deep) && deep >= 0 && deep < STEPS.length) currentStep = deep;
+        if (!isNaN(deep)) currentStep = Math.max(0, Math.min(STEPS.length - 1, deep));
       }
     } catch (e) { /* URLSearchParams unavailable */ }
 

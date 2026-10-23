@@ -6,8 +6,9 @@ try-on. Everything runs in the browser; there is no backend and no build step.
 
 ## Features
 
-- **Aesthetic discovery wizard** (`aesthetic.html`) — an 8-step, no-login-required quiz that
-  captures a structured style profile (aesthetics, colours, fit, formality, exclusions, priorities).
+- **Unified style profile** (`profile.html`) — a 3-step, no-login-required onboarding flow that
+  captures name, gender, aesthetics, colours, fit, sizes, comfort, formality, exclusions,
+  priorities and wardrobe preferences. The full profile is collected in three screens.
 - **Recommendation engine** (`recommendations.html`) — deterministic, explainable ranking of the
   catalogue against the saved profile, with reasons, warnings and a per-criterion breakdown.
 - **3D playground** (`index.html`) — three.js avatar viewer plus try-on preview (`#playground-area`).
@@ -43,7 +44,7 @@ sign-in dialog reports that Google Sign-In is not configured.
 
 ```
 index.html                     Landing page + 3D playground
-aesthetic.html                 Aesthetic discovery wizard (Page 3)
+profile.html                   Unified 3-step style, fit and comfort profile
 recommendations.html           Personalised recommendations
 src/
   config.js                    Runtime config (git-ignored)
@@ -54,7 +55,7 @@ src/
   data/
     catalogue.json             Outfit catalogue
   features/
-    aesthetic/                 Wizard controller
+    profile/                   Unified 3-step profile controller
     viewer/                    three.js viewer
     recommendations/
       recommendations.rules.js   Weights + vocabulary + heuristics

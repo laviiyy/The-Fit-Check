@@ -14,9 +14,6 @@
   var Store = global.DaFitMatchStore;
 
   var CATALOGUE_URL = 'src/data/catalogue.json';
-  var STATE = { catalogue: null, gender: 'all', category: 'all', maxPrice: null };
-
-  var CATALOGUE_URL = 'src/data/catalogue.json';
   var STATE = { catalogue: null, gender: 'all', category: 'all', maxPrice: null, person: 'p1' };
 
   function $(id) { return document.getElementById(id); }
@@ -65,7 +62,14 @@
     }
 
     var genderSelect = $('filter-gender');
-    if (genderSelect) genderSelect.addEventListener('change', function () { STATE.gender = genderSelect.value; render(); });
+    if (genderSelect) {
+      var storedGender = (getProfile().fit || {}).gender;
+      if (storedGender === 'men' || storedGender === 'women') {
+        STATE.gender = storedGender;
+        genderSelect.value = storedGender;
+      }
+      genderSelect.addEventListener('change', function () { STATE.gender = genderSelect.value; render(); });
+    }
 
     /* Couple mode: score for each partner against their own fit profile. */
     var coupleWrap = $('filter-couple-wrap');
@@ -108,6 +112,8 @@
     function fitChip(text) { return '<span class="inline-flex items-center px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-xs font-semibold text-sky-700">' + esc(text) + '</span>'; }
 
     if (profile._person) chips.push(chip('For ' + profile._person));
+    if (f.full_name) chips.push(chip(f.full_name));
+    if (f.gender && f.gender !== 'prefer-not-to-say') chips.push(chip(idLabel(f.gender)));
 
     (a.preferred_styles || []).forEach(function (id) { chips.push(chip(labelOf('aesthetic', id))); });
     (a.preferred_colours || []).forEach(function (id) { chips.push(chip(labelOf('colour', id))); });
@@ -121,7 +127,7 @@
     host.innerHTML = chips.length
       ? chips.join('')
       : '<span class="text-sm text-slate-500">You haven\'t set preferences yet. ' +
-        '<a class="font-semibold text-sky-600 hover:text-sky-700" href="aesthetic.html">Take the 2-minute style quiz</a>.</span>';
+        '<a class="font-semibold text-sky-600 hover:text-sky-700" href="profile.html">Take the 2-minute style quiz</a>.</span>';
   }
 
   var LABELS = {
@@ -213,7 +219,8 @@
     var profile = getProfile();
     var report = Engine.recommend(profile, STATE.catalogue, {
       gender: STATE.gender,
-      maxPrice: STATE.maxPrice
+      maxPrice: STATE.maxPrice,
+      person: STATE.person
     });
 
     var results = report.results;
@@ -267,9 +274,9 @@
       render();
       if (Store) Store.on(function () { render(); });
     }).catch(function (e) {
-      console.error('[DaFitMatch Recommendations] failed to load catalogue', e);
+      console.error('[DaFitMatch Recommendations] failed to load recommendations', e);
       var grid = $('rec-grid');
-      if (grid) grid.innerHTML = '<p class="col-span-full text-center text-slate-500 py-12">We couldn\'t load the catalogue right now. Please refresh.</p>';
+      if (grid) grid.innerHTML = '<p class="col-span-full text-center text-slate-500 py-12">We couldn\'t load your recommendations right now. Please refresh.</p>';
     });
   }
 

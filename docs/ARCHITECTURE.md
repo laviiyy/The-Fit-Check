@@ -8,13 +8,13 @@ static host will serve it, but a local HTTP server is required so `fetch()` of t
 
 ```
                  ┌───────────────────────────────────────────────┐
-   HTML pages    │ index.html   aesthetic.html   recommendations.html │
+   HTML pages    │ index.html   profile.html   recommendations.html │
                  └───────────────┬───────────────┬───────────────────┘
                                  │               │
    core            src/config.js │  src/core/auth.js  src/core/store.js
                                  │               │
    features        src/features/viewer/three-viewer.js
-                   src/features/aesthetic/aesthetic.controller.js
+                   src/features/profile/profile.controller.js
                    src/features/recommendations/*.js
                                  │
    data            src/data/catalogue.json      assets/{brand,images,models}
@@ -26,14 +26,16 @@ static host will serve it, but a local HTTP server is required so `fetch()` of t
 | Core       | `src/core/auth.js`            | Google Sign-In + session; never fabricates a login        |
 | Core       | `src/core/store.js`           | Per-user onboarding state + localStorage persistence      |
 | Feature    | `features/viewer`             | three.js avatar + try-on preview                          |
-| Feature    | `features/aesthetic`          | The 8-step wizard controller                              |
+| Feature    | `features/profile`            | Unified 3-step aesthetic + fit profile controller         |
 | Feature    | `features/recommendations`    | Rules + engine + UI for ranking outfits                   |
 | Data       | `src/data/catalogue.json`     | Outfit catalogue (single source of product data)          |
 
 ## The profile contract
 
-The wizard writes a **structured aesthetic profile** into `DaFitMatchStore`. The canonical shape is
-defined by `blankAesthetic()` in `src/core/store.js`:
+The wizard writes a **structured aesthetic profile** plus a per-partner fit profile into
+`DaFitMatchStore`. The unified page also stores the optional display name and gender on the fit
+profile (`full_name`, `gender`). The aesthetic shape is defined by `blankAesthetic()` in
+`src/core/store.js`:
 
 ```js
 {
@@ -90,7 +92,7 @@ Auth is resolved defensively: `auth.js` declares a top-level `const AuthState`, 
 ### Scoring
 
 Each outfit is flattened to a lower-cased **corpus** (name, style, category, items, colours) plus a
-`formality` value from `CATEGORY_META`. Seven criteria are scored in `0..1` and combined by weight:
+`formality` value from `CATEGORY_META`. Criteria are scored in `0..1` and combined by weight:
 
 | Criterion        | Weight | Source                                   |
 | ---------------- | ------ | ---------------------------------------- |
@@ -101,6 +103,9 @@ Each outfit is flattened to a lower-cased **corpus** (name, style, category, ite
 | Pattern          | 8      | `PATTERN_KEYWORDS`                       |
 | Priorities       | 12     | `PRIORITY_RULES` (keywords/category/…)   |
 | Variety          | 10     | `EXPERIMENTATION_KEYWORDS`               |
+| Comfort          | 10     | `COMFORT_/MOBILITY_KEYWORDS`             |
+| Finishing touches| 8      | `REFINEMENT_KEYWORDS`                    |
+| Footwear         | 6      | `FOOTWEAR_KEYWORDS`                      |
 
 `score = round(weightedAverage * 100 − penalties)`, clamped to `0..100`. **Hard exclusions**
 (`hardExclusion`) remove an outfit entirely and report a human reason; **penalties** lower the score

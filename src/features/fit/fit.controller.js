@@ -123,7 +123,7 @@
   }
 
   function saveFit(patch, silent) {
-    return isPartner2() ? Store.setPartner2Fit(patch, silent) : saveFit(patch, silent);
+    return isPartner2() ? Store.setPartner2Fit(patch, silent) : Store.setFit(patch, silent);
   }
 
   function partnerName() {
@@ -346,7 +346,7 @@
     function group(title, values) { if (values && values.length) parts.push(summaryGroup(title, values)); }
 
     if (f.general_fit) group('Overall fit', [labelOf(FITS, f.general_fit)]);
-    group('Garment fit', garmentSummary());
+    group('Garment fit', garmentFitLabels());
     group('Silhouettes', (f.preferred_silhouettes || []).map(function (id) { return labelOf(SILHOUETTES, id); }));
     group('Comfort', (f.comfort_preferences || []).map(function (id) { return labelOf(COMFORT, id); }));
     group('Movement', (f.mobility_requirements || []).map(function (id) { return labelOf(MOBILITY, id); }));

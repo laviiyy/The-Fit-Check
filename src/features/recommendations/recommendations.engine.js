@@ -49,6 +49,7 @@
       arr(a.styling_priorities).length === 0 &&
       arr(a.excluded_garments).length === 0 &&
       arr(a.excluded_fabrics).length === 0 &&
+      arr(a.preferred_footwear).length === 0 &&
       !a.preferred_fit && !a.preferred_silhouette && !a.formality_preference &&
       !a.pattern_preference && !a.experimentation_level &&
       !ref.statement_style && !ref.layering_preference && !ref.trend_preference &&
@@ -73,15 +74,43 @@
     );
   }
 
-  /* --- catalogue flattening --------------------------------------------- */
+  /* --- catalogue flattening ---------------------------------------------
+   * Couple outfits store their pieces under `person1` / `person2` and their
+   * colours under `palette` instead of `items` / `colors`. Normalise both
+   * shapes so every outfit is scored from real catalogue data, and keep a
+   * per-person scope so couple mode can rank against one partner's fit
+   * profile without mixing in the other partner's garments. */
   function flatten(catalogue) {
     var out = [];
     arr(catalogue && catalogue.catalogues).forEach(function (cat) {
       var meta = RULES.CATEGORY_META[cat.id] || { name: cat.name || cat.id, formality: 3 };
       arr(cat.outfits).forEach(function (o) {
+        var style = o.style || o.occasion || o.coordination || '';
         var items = arr(o.items);
-        var colors = arr(o.colors);
-        var corpus = [o.name, o.style, cat.name, meta.name]
+        var colors = arr(o.colors || o.palette);
+
+        function scopeOf(person) {
+          if (!person) return null;
+          var pItems = arr(person.items);
+          var pColors = arr(person.colors || person.palette);
+          if (!pColors.length) pColors = arr(o.colors || o.palette);
+          return {
+            items: pItems,
+            colors: pColors,
+            corpus: [o.name, style, cat.name, meta.name].concat(pItems, pColors).join(' ').toLowerCase(),
+            itemsText: pItems.join(' ').toLowerCase(),
+            colorsText: pColors.join(' ').toLowerCase()
+          };
+        }
+
+        var p1 = scopeOf(o.person1);
+        var p2 = scopeOf(o.person2);
+        if (p1 || p2) {
+          items = (p1 ? p1.items : []).concat(p2 ? p2.items : []);
+          if (!colors.length) colors = arr(o.colors || o.palette);
+        }
+
+        var corpus = [o.name, style, cat.name, meta.name]
           .concat(items, colors)
           .join(' ')
           .toLowerCase();
@@ -94,13 +123,14 @@
           formality: meta.formality,
           items: items,
           colors: colors,
-          style: o.style,
+          style: style,
           price: typeof o.price === 'number' ? o.price : null,
           platform: o.platform,
           matchScore: typeof o.matchScore === 'number' ? o.matchScore : 0,
           image: o.image,
           model3D: o.model3D,
           tryOnImage: o.tryOnImage,
+          personVariants: (p1 || p2) ? { p1: p1, p2: p2 } : null,
           corpus: corpus,
           itemsText: items.join(' ').toLowerCase(),
           colorsText: colors.join(' ').toLowerCase()
@@ -175,7 +205,7 @@
     return { score: clamp01(avg), detail: hasFit ? 'Fits your shape preference' : 'Silhouette considered' };
   }
 
-  function scoreComfort(o, fit) {
+  function scoreComfort(corpus, fit) {
     var words = [];
     arr(fit.comfort_preferences).forEach(function (id) {
       var w = RULES.COMFORT_KEYWORDS[id];
@@ -249,35 +279,72 @@
     return { score: keywordScore(corpus, words), detail: level };
   }
 
+  function scoreRefinement(corpus, a) {
+    var ref = a.refinement || {};
+    var parts = [];
+    function add(words) {
+      if (words && words.length) parts.push(keywordScore(corpus, words));
+    }
+
+    var groups = RULES.REFINEMENT_KEYWORDS;
+    add(groups.statement_style[ref.statement_style]);
+    add(groups.layering_preference[ref.layering_preference]);
+    add(groups.trend_preference[ref.trend_preference]);
+    add(groups.ease_of_care[ref.ease_of_care]);
+    if (ref.reuse_wardrobe === 'yes') {
+      var reuse = RULES.PRIORITY_RULES['Reusing existing wardrobe'];
+      if (reuse && reuse.words) add(reuse.words);
+    }
+
+    if (!parts.length) return { score: 0.5, detail: 'No refinement preference' };
+    var avg = parts.reduce(function (s, n) { return s + n; }, 0) / parts.length;
+    return { score: clamp01(avg), detail: 'Finishing touches applied' };
+  }
+
+  function scoreFootwear(corpus, a) {
+    var selected = arr(a.preferred_footwear);
+    if (!selected.length) return { score: 0.5, detail: 'No footwear preference' };
+    var words = [];
+    selected.forEach(function (label) {
+      var w = RULES.FOOTWEAR_KEYWORDS[label];
+      if (w) words = words.concat(w);
+    });
+    if (!words.length) return { score: 0.5, detail: 'Footwear noted' };
+    return {
+      score: clamp01(hits(words, corpus)),
+      detail: selected.slice(0, 2).join(', ')
+    };
+  }
+
   /* --- exclusions & penalties ------------------------------------------- */
-  function hardExclusion(o, a) {
+  function hardExclusion(scope, a) {
     var flags = arr(a.exclusion_flags);
     if (flags.indexOf('no-restrictions') > -1) return null;
 
     var g = arr(a.excluded_garments);
     for (var i = 0; i < g.length; i++) {
       var gw = RULES.GARMENT_KEYWORDS[g[i]];
-      if (gw && matchedWords(gw, o.itemsText).length) {
+      if (gw && matchedWords(gw, scope.itemsText).length) {
         return 'You excluded ' + g[i] + '.';
       }
     }
     var f = arr(a.excluded_fabrics);
     for (var j = 0; j < f.length; j++) {
       var fw = RULES.FABRIC_KEYWORDS[f[j]];
-      if (fw && matchedWords(fw, o.corpus).length) {
+      if (fw && matchedWords(fw, scope.corpus).length) {
         return 'Made with ' + f[j] + ', which you excluded.';
       }
     }
     for (var k = 0; k < flags.length; k++) {
       var rule = RULES.FLAG_RULES[flags[k]];
-      if (rule && rule.mode === 'exclude' && rule.words && matchedWords(rule.words, o.corpus).length) {
+      if (rule && rule.mode === 'exclude' && rule.words && matchedWords(rule.words, scope.corpus).length) {
         return 'Matches an exclusion: ' + flags[k].replace(/-/g, ' ') + '.';
       }
     }
     return null;
   }
 
-  function penalties(o, a) {
+  function penalties(scope, a) {
     var flags = arr(a.exclusion_flags);
     var warningList = [];
     var total = 0;
@@ -288,7 +355,7 @@
       arr(a.avoided_colours).forEach(function (id) {
         var words = RULES.AVOID_COLOUR_KEYWORDS[id];
         if (!words) return;
-        var m = matchedWords(words, o.colorsText);
+        var m = matchedWords(words, scope.colorsText);
         if (m.length) avoidText = avoidText.concat(m);
       });
       if (avoidText.length) {
@@ -300,7 +367,7 @@
       flags.forEach(function (flag) {
         var rule = RULES.FLAG_RULES[flag];
         if (!rule || rule.mode !== 'penalty') return;
-        if (rule.words && matchedWords(rule.words, o.corpus).length) {
+        if (rule.words && matchedWords(rule.words, scope.corpus).length) {
           total += rule.points || 8;
           warningList.push(rule.message || ('Conflicts with: ' + flag.replace(/-/g, ' ')));
         }
@@ -315,20 +382,26 @@
 
   /* --- one outfit ------------------------------------------------------- */
   function score(o, a, fit, ctx) {
-    var hard = hardExclusion(o, a);
+    /* Couple outfits carry a scope per partner; score only the active
+     * partner's pieces when one is selected. */
+    var scope = (o.personVariants && ctx.person && o.personVariants[ctx.person]) || o;
+
+    var hard = hardExclusion(scope, a);
     if (hard) {
       return { outfit: o, score: 0, excluded: true, reason: hard, breakdown: [], reasons: [], warnings: [hard] };
     }
 
     var W = RULES.WEIGHTS;
-    var aesthetic = scoreAesthetic(o.corpus, a);
-    var colour = scoreColour(o, a);
+    var aesthetic = scoreAesthetic(scope.corpus, a);
+    var colour = scoreColour(scope, a);
     var formality = scoreFormality(o, a);
-    var fitResult = scoreFit(o.corpus, a, fit);
-    var pattern = scorePattern(o.corpus, a);
-    var priorities = scorePriorities(o.corpus, o, a, formality.score, ctx.price);
-    var experimentation = scoreExperimentation(o.corpus, a);
-    var comfort = scoreComfort(o, fit);
+    var fitResult = scoreFit(scope.corpus, a, fit);
+    var pattern = scorePattern(scope.corpus, a);
+    var priorities = scorePriorities(scope.corpus, o, a, formality.score, ctx.price);
+    var experimentation = scoreExperimentation(scope.corpus, a);
+    var comfort = scoreComfort(scope.corpus, fit);
+    var refinement = scoreRefinement(scope.corpus, a);
+    var footwear = scoreFootwear(scope.corpus, a);
 
     var parts = [
       { key: 'aesthetic', label: 'Aesthetic', weight: W.aesthetic, score: aesthetic.score, detail: aesthetic.detail },
@@ -338,14 +411,16 @@
       { key: 'pattern', label: 'Pattern', weight: W.pattern, score: pattern.score, detail: pattern.detail },
       { key: 'priorities', label: 'Priorities', weight: W.priorities, score: priorities.score, detail: priorities.detail },
       { key: 'experimentation', label: 'Variety', weight: W.experimentation, score: experimentation.score, detail: experimentation.detail },
-      { key: 'comfort', label: 'Comfort & practicality', weight: W.comfort, score: comfort.score, detail: comfort.detail }
+      { key: 'comfort', label: 'Comfort & practicality', weight: W.comfort, score: comfort.score, detail: comfort.detail },
+      { key: 'refinement', label: 'Finishing touches', weight: W.refinement, score: refinement.score, detail: refinement.detail },
+      { key: 'footwear', label: 'Footwear', weight: W.footwear, score: footwear.score, detail: footwear.detail }
     ];
 
     var totalWeight = parts.reduce(function (s, p) { return s + p.weight; }, 0);
     var weighted = parts.reduce(function (s, p) { return s + p.weight * p.score; }, 0) / totalWeight;
     var raw = weighted * 100;
 
-    var pen = penalties(o, a);
+    var pen = penalties(scope, a);
     var finalScore = Math.max(0, Math.min(100, Math.round(raw - pen.total)));
 
     parts.forEach(function (p) { p.points = Math.round(p.weight * p.score); p.max = p.weight; });
@@ -377,7 +452,9 @@
     pattern: 'Pattern you tend to like',
     priorities: 'Honours your styling priorities',
     experimentation: 'Matches how adventurous you feel',
-    comfort: 'Comfortable and practical for how you wear it'
+    comfort: 'Comfortable and practical for how you wear it',
+    refinement: 'Matches your finishing-touch preferences',
+    footwear: 'Works with the footwear you prefer'
   };
 
   function reasonFor(part, colour, aesthetic, o) {
@@ -397,6 +474,7 @@
     var gender = options.gender && options.gender !== 'all' ? options.gender : null;
     var pool = all.filter(function (o) {
       if (options.maxPrice && o.price !== null && o.price > options.maxPrice) return false;
+      if (gender === 'couple') return o.gender === 'couple';
       if (gender && o.gender !== gender && o.gender !== 'unisex') return false;
       return true;
     });
@@ -414,7 +492,11 @@
     }
 
     var results = pool.map(function (o) {
-      return score(o, aesthetic, fit, { price: priceNorm(o.price), emptyProfile: emptyProfile });
+      return score(o, aesthetic, fit, {
+        price: priceNorm(o.price),
+        emptyProfile: emptyProfile,
+        person: options.person || null
+      });
     });
 
     var recommended = results.filter(function (r) { return !r.excluded; });

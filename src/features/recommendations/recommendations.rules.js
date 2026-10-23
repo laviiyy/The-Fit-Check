@@ -24,7 +24,9 @@
     pattern: 8,
     priorities: 12,
     experimentation: 10,
-    comfort: 10
+    comfort: 10,
+    refinement: 8,
+    footwear: 6
   };
 
   /* Catalogue category -> context. `formality` is a 1..5 pleasantness scale. */
@@ -138,6 +140,43 @@
     bold: ['graphic', 'color block', 'statement', 'print', 'embellish']
   };
 
+  /* Optional refinement answers -> catalogue keywords. Empty lists mean the
+   * answer is intentionally neutral (e.g. "balanced"). */
+  var REFINEMENT_KEYWORDS = {
+    statement_style: {
+      simple: ['minimal', 'clean', 'plain', 'simple', 'straight'],
+      balanced: [],
+      statement: ['statement', 'bold', 'color block', 'graphic', 'embellish']
+    },
+    layering_preference: {
+      'minimal-layers': ['minimal', 'clean', 'simple'],
+      balanced: [],
+      layered: ['layered', 'jacket', 'overshirt', 'knit', 'textured']
+    },
+    trend_preference: {
+      timeless: ['classic', 'timeless', 'tailored', 'minimal', 'straight'],
+      balanced: [],
+      trendy: ['trend', 'bold', 'graphic', 'color block', 'oversized', 'contemporary']
+    },
+    ease_of_care: {
+      'low-maintenance': ['cotton', 'denim', 'plain', 'easy', 'everyday'],
+      balanced: [],
+      any: []
+    }
+  };
+
+  /* Preferred footwear label -> keywords detected in an outfit's items. */
+  var FOOTWEAR_KEYWORDS = {
+    Sneakers: ['sneaker'],
+    Loafers: ['loafer'],
+    Heels: ['heel'],
+    'Flats / Sandals': ['flat', 'sandal'],
+    Boots: ['boot'],
+    'Derby / Oxford': ['derby', 'oxford'],
+    Mojari: ['mojari'],
+    'Chunky / Platform': ['chunky', 'platform']
+  };
+
   /* Experimentation level id -> keywords it favours. */
   var EXPERIMENTATION_KEYWORDS = {
     familiar: ['minimal', 'classic', 'basic', 'plain', 'straight'],
@@ -237,6 +276,8 @@
     FIT_KEYWORDS: FIT_KEYWORDS,
     SILHOUETTE_KEYWORDS: SILHOUETTE_KEYWORDS,
     PATTERN_KEYWORDS: PATTERN_KEYWORDS,
+    REFINEMENT_KEYWORDS: REFINEMENT_KEYWORDS,
+    FOOTWEAR_KEYWORDS: FOOTWEAR_KEYWORDS,
     EXPERIMENTATION_KEYWORDS: EXPERIMENTATION_KEYWORDS,
     COMFORT_KEYWORDS: COMFORT_KEYWORDS,
     MOBILITY_KEYWORDS: MOBILITY_KEYWORDS,
