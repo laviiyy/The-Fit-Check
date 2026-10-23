@@ -1,3 +1,5 @@
+<div align="center">
+
 # DaFitMatch
 
 AI-assisted personal styling platform that helps users discover an aesthetic, profile their
@@ -6,9 +8,8 @@ try-on. Everything runs in the browser; there is no backend and no build step.
 
 ## Features
 
-- **Unified style profile** (`profile.html`) — a 3-step, no-login-required onboarding flow that
-  captures name, gender, aesthetics, colours, fit, sizes, comfort, formality, exclusions,
-  priorities and wardrobe preferences. The full profile is collected in three screens.
+- **Aesthetic discovery wizard** (`aesthetic.html`) — an 8-step, no-login-required quiz that
+  captures a structured style profile (aesthetics, colours, fit, formality, exclusions, priorities).
 - **Recommendation engine** (`recommendations.html`) — deterministic, explainable ranking of the
   catalogue against the saved profile, with reasons, warnings and a per-criterion breakdown.
 - **3D playground** (`index.html`) — three.js avatar viewer plus try-on preview (`#playground-area`).
@@ -19,20 +20,22 @@ try-on. Everything runs in the browser; there is no backend and no build step.
 
 Any static file server works. For example, with Python:
 
-```powershell
-python -m http.server 8000
-# then open http://localhost:8000/index.html
-```
-
-> A local server is required (not `file://`) because the app fetches `src/data/catalogue.json`.
-
-### Configuration
-
-1. Copy the example config and fill in your Google OAuth client ID:
-
    ```powershell
-   Copy-Item src/config.example.js src/config.js
+   python -m http.server 8000
    ```
+
+- Open [http://localhost:8000/index.html](http://localhost:8000/index.html).
+
+- The catalogue is fetched over HTTP, so do not open the HTML files directly with `file://`.
+
+## Local settings
+
+- Configuration is optional for guest browsing and local recommendations.
+- To create local settings, copy the template:
+
+```powershell
+Copy-Item src/config.example.js src/config.js
+```
 
 2. Add the serving origin (e.g. `http://localhost:8000`) to the OAuth client's
    **Authorised JavaScript origins** in the Google Cloud console.
@@ -44,7 +47,7 @@ sign-in dialog reports that Google Sign-In is not configured.
 
 ```
 index.html                     Landing page + 3D playground
-profile.html                   Unified 3-step style, fit and comfort profile
+aesthetic.html                 Aesthetic discovery wizard (Page 3)
 recommendations.html           Personalised recommendations
 src/
   config.js                    Runtime config (git-ignored)
@@ -55,7 +58,7 @@ src/
   data/
     catalogue.json             Outfit catalogue
   features/
-    profile/                   Unified 3-step profile controller
+    aesthetic/                 Wizard controller
     viewer/                    three.js viewer
     recommendations/
       recommendations.rules.js   Weights + vocabulary + heuristics
